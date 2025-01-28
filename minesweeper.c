@@ -2,8 +2,10 @@
 // This project will run a minesweeper game
 
 #include <stdio.h>
-#include <cstring>
+//#include <cstring>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
 
@@ -23,7 +25,7 @@ struct cell
 };
 typedef struct cell cell;
 
-cell** board = nullptr;
+cell** board = NULL;
 int rows;
 int cols;
 int mines;
@@ -148,7 +150,7 @@ int process_command(char tokens[][MAX_TOKENS], int tokenCount)
 
     else if (strcmp(command, "flag") == 0)
     {
-        if (board == nullptr)
+        if (board == NULL)
         {
             printf("Board wasn't created yet.\nThere are no cells to flag!\n\n");
         }
@@ -159,7 +161,7 @@ int process_command(char tokens[][MAX_TOKENS], int tokenCount)
 
     else if (strcmp(command, "unflag") == 0)
     {
-        if (board == nullptr)
+        if (board == NULL)
         {
             printf("Board wasn't created yet.\nThere are no cells to unflag!\n\n");
         }
@@ -170,7 +172,7 @@ int process_command(char tokens[][MAX_TOKENS], int tokenCount)
 
     else if (strcmp(command, "uncover") == 0)
     {
-        if (board == nullptr)
+        if (board == NULL)
         {
             printf("Board wasn't created yet.\nThere are no cells to uncover!\n\n");
         }
