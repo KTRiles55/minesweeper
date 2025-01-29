@@ -2,9 +2,7 @@
 // This project will run a minesweeper game
 
 #include <stdio.h>
-//#include <cstring>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
@@ -29,8 +27,8 @@ cell** board = NULL;
 int rows;
 int cols;
 int mines;
-bool boardCreated = false;
-bool win = false;
+int boardCreated = 0;
+int win = 0;
 
 int neighborCount = 8;
 int rowNeighbors[] = { -1, -1, 0, 1, 1, 1, 0, -1 };
@@ -48,7 +46,7 @@ void tokenizeLine(char string[], char tokens[][MAX_TOKENS], int tokenCount);
 
 int process_command(char tokens[][MAX_TOKENS], int tokenCount);
 
-bool rungame();
+int rungame();
 
 char* fixLetterCase(char* newCommand);
 
@@ -73,6 +71,8 @@ void distributeMines(int r, int c, int m);
 void calculateAdjacencyCounts(int r, int c);  
 
 int checkWinCondition();
+
+int checkMissingParameters(char command[], int rVal, int cVal);
 
 
 int main()
@@ -119,21 +119,35 @@ int process_command(char tokens[][MAX_TOKENS], int tokenCount)
     if (strcmp(command, "new") == 0)
     {
         printf("\n>> Entered NEW command <<\n\n");
-        rows = rVal;
-        cols = cVal;
-        mines = atoi(tokens[3]);
 
-        if (!(boardCreated))
-        {
-            boardCreated = true;
+        if (checkMissingParameters(command, rVal, cVal) > 0) {
+            return -1;
         }
 
-        else
-        {
-            free(board);
+        if (atoi(tokens[3]) > 0) {
+            rows = rVal;
+            cols = cVal;
+            mines = atoi(tokens[3]);
+
+            if (boardCreated < 1)
+            {
+                boardCreated = 1;
+            }
+
+            else
+            {
+                free(board);
+            }
+
+            command_new(rows, cols, mines);
         }
 
-        command_new(rows, cols, mines);
+        else {
+            printf("Command will not work correctly.\n"
+                  "Please enter NEW command in following format:\n" 
+                  "** new [# of rows] [# of cols] [# of mines] **\n");
+        }
+
     }
 
     else if (strcmp(command, "show") == 0)
@@ -150,34 +164,49 @@ int process_command(char tokens[][MAX_TOKENS], int tokenCount)
 
     else if (strcmp(command, "flag") == 0)
     {
+        printf("\n>> Entered FLAG command <<\n\n");
+        if (checkMissingParameters(command, rVal, cVal) > 0) {
+            return -1;
+        }
+
         if (board == NULL)
         {
             printf("Board wasn't created yet.\nThere are no cells to flag!\n\n");
+            return -1;
         }
 
-        printf("\n>> Entered FLAG command <<\n\n");
         command_flag(rVal, cVal);
     }
 
     else if (strcmp(command, "unflag") == 0)
     {
+        printf("\n>> Entered UNFLAG command <<\n\n");
+        if (checkMissingParameters(command, rVal, cVal) > 0) {
+            return -1;
+        }
+
         if (board == NULL)
         {
             printf("Board wasn't created yet.\nThere are no cells to unflag!\n\n");
+            return -1;
         }
 
-        printf("\n>> Entered UNFLAG command <<\n\n");
         command_unflag(rVal, cVal);
     }
 
     else if (strcmp(command, "uncover") == 0)
     {
+        printf("\n>> Entered UNCOVER command <<\n\n");
+        if (checkMissingParameters(command, rVal, cVal) > 0) {
+            return -1;
+        }
+
         if (board == NULL)
         {
             printf("Board wasn't created yet.\nThere are no cells to uncover!\n\n");
+            return -1;
         }
 
-        printf("\n>> Entered UNCOVER command <<\n\n");
         int winning_condition = command_uncover(rVal, cVal);
         if (winning_condition == -1)
         {
@@ -187,7 +216,7 @@ int process_command(char tokens[][MAX_TOKENS], int tokenCount)
 
         else if (winning_condition == 1)
         {
-            win = true;
+            win = 1;
             printf("You have flagged all mines and uncovered all cells!\n You win!\n");
         }
     }
@@ -428,10 +457,10 @@ void uncover_recursive(int r, int c)
 }
 
 
-bool rungame()
+int rungame()
 {
-    bool new_game = true;
-    while (new_game)
+    int new_game = 1;
+    while (new_game > 0)
     {
         srand(time(0));
         char line[80];
@@ -451,33 +480,35 @@ bool rungame()
             command_validity_checkNum = process_command(tokens, tokenCount);
         }
 
-        if ((command_validity_checkNum == 0) || (win == true))
-        {
-            new_game = false;
+        if (command_validity_checkNum == 0) {
+            return -1;
+        }
 
+        if (win == 1)
+        {
+            new_game = 0;
             // free memory space from each cell on the board
             free(board);
         }
     }
-
     char response[50];
-    bool replayGame = true;
-    while (replayGame)
+    int replayGame = 1;
+    while (replayGame > 0)
     {
         printf("Do you want to play again (Yes / No)? ");
         getLine(response, MAXLINELEN);
         fixLetterCase(response);
         if (strcmp(response, "yes") == 0)
         {
-            win = false;
-            boardCreated = false;
+            win = 0;
+            boardCreated = 0;
             rungame();
         }
 
         else if (strcmp(response, "no") == 0)
         {
             printf("\nClosing program...\n");
-            replayGame = false;
+            replayGame = 0;
         }
 
         else
@@ -512,6 +543,17 @@ int checkWinCondition()
 
     if ((flagged_mines == mines) && (covered_cells == 0))
     {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+int checkMissingParameters(char command[], int rVal, int cVal) {
+    if ((rVal == 0) || (cVal == 0)) {
+        printf("%s command must take 2 parameters in the form:\n"
+               "** %s [# of rows] [# of cols] **\n", command, command);
         return 1;
     }
 
