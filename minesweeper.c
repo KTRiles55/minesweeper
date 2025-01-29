@@ -50,6 +50,8 @@ int rungame();
 
 char* fixLetterCase(char* newCommand);
 
+void command_help();
+
 void command_new(int r, int c, int m);
 
 void command_show();
@@ -77,6 +79,9 @@ int checkMissingParameters(char command[], int rVal, int cVal);
 
 int main()
 {
+    printf("\nHello!\nYou are playing the game of Minesweeper!\n\n"
+           "If you are new to using this program,\n"
+           "please enter the command \"help\" for more information!\n\n");
     rungame();
 }
 
@@ -154,6 +159,12 @@ int process_command(char tokens[][MAX_TOKENS], int tokenCount)
     {
         printf("\n>> Entered SHOW command <<\n\n");
         command_show();
+    }
+
+    else if (strcmp(command, "help") == 0)
+    {
+        printf("\n>> Entered HELP command <<\n\n");
+        command_help();
     }
 
     else if (strcmp(command, "quit") == 0)
@@ -287,6 +298,20 @@ void command_show()
     }
 }
 
+
+// Displays each available command and how each works
+void command_help()
+{
+    printf("Available commands:\n"
+           "__________________________________________________________________________________________________________\n\n"
+           "1) new [# of rows] [# of cols] [* of mines] - Creates a new table containing rows, columns and mines.\n\n"
+           "2) show - Displays covered/uncovered table.\n\n"
+           "3) flag [row #] [col #] - Places flag on selected cell in position.\n\n"
+           "4) unflag [row #] [col #] - Removes flag from selected cell in position.\n\n"
+           "5) uncover [row #] [col #] - Uncovers a cell in selected position.\n\n"
+           "6) quit - Terminates the program.\n"
+           );
+}
 
 // Initializes each cell upon creation
 void init_cell(cell* c, int p)
